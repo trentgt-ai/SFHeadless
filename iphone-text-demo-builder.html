@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iPhone Text Demo Builder</title>
+  <style>
+    :root {
+      --stage-1: #0176d3;
+      --stage-2: #6cc3f2;
+      --stage-3: #032d60;
+      --panel-bg: rgba(255, 255, 255, 0.94);
+      --panel-text: #1f2937;
+      --panel-muted: #6b7280;
+      --panel-border: #dbe1ea;
+      --primary: #0b84ff;
+      --primary-dark: #0670e0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background: radial-gradient(circle at 50% 0%, var(--stage-2), var(--stage-1) 50%, var(--stage-3) 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .layout {
+      width: min(1200px, 100%);
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel-bg);
+      color: var(--panel-text);
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 24px 52px rgba(0, 0, 0, 0.28);
+      padding: 16px;
+    }
+    .panel h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      color: #0f172a;
+    }
+    .sub {
+      margin: 0 0 14px;
+      font-size: 13px;
+      color: var(--panel-muted);
+    }
+
+    .controls {
+      display: grid;
+      gap: 10px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #374151;
+      display: block;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    select, input[type="text"], textarea, button {
+      width: 100%;
+      font: inherit;
+      border-radius: 10px;
+      border: 1px solid var(--panel-border);
+      background: #fff;
+      color: #111827;
+    }
+    select, input[type="text"] {
+      padding: 9px 10px;
+      font-size: 14px;
+    }
+    textarea {
+      min-height: 250px;
+      resize: vertical;
+      padding: 10px;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+    .btns {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    button {
+      cursor: pointer;
+      border: 0;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      background: #e5e7eb;
+      color: #111827;
+    }
+    button.primary {
+      background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+      color: #fff;
+    }
+    button:active { transform: translateY(1px); }
+
+    .hint {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--panel-muted);
+    }
+
+    .phone-wrap {
+      display: grid;
+      place-items: center;
+    }
+    .phone {
+      position: relative;
+      width: 375px;
+      height: 812px;
+      background: linear-gradient(155deg, #3a3d40, #1c1d1f 60%);
+      border-radius: 46px;
+      padding: 12px;
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+        0 40px 80px rgba(0, 0, 0, 0.5),
+        0 15px 30px rgba(0, 0, 0, 0.45);
+    }
+    .phone::before {
+      content: "";
+      position: absolute;
+      left: -3px;
+      top: 130px;
+      width: 3px;
+      height: 32px;
+      background: #111;
+      border-radius: 2px 0 0 2px;
+      box-shadow: 0 60px 0 #111, 0 96px 0 #111;
+    }
+    .phone::after {
+      content: "";
+      position: absolute;
+      right: -3px;
+      top: 180px;
+      width: 3px;
+      height: 62px;
+      background: #111;
+      border-radius: 0 2px 2px 0;
+    }
+    .screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 36px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: #fff;
+    }
+    .cam-dot {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #3a5a6b, #0a0f12 70%);
+      z-index: 40;
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.15);
+    }
+    .status-bar {
+      height: 40px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 22px 0;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 20;
+    }
+    .status-icons { display: flex; gap: 5px; }
+    .chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 12px 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      scrollbar-width: none;
+    }
+    .chat::-webkit-scrollbar { display: none; }
+    .day-chip {
+      align-self: center;
+      font-size: 11px;
+      opacity: 0.8;
+      margin-bottom: 8px;
+    }
+    .row-msg {
+      display: flex;
+      width: 100%;
+    }
+    .row-msg.in { justify-content: flex-start; }
+    .row-msg.out { justify-content: flex-end; }
+    .bubble {
+      max-width: 76%;
+      padding: 8px 11px;
+      border-radius: 14px;
+      font-size: 14.5px;
+      line-height: 1.35;
+      white-space: pre-wrap;
+      animation: pop .2s ease-out;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, .08);
+    }
+    @keyframes pop {
+      from { opacity: 0; transform: translateY(6px) scale(.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .meta {
+      display: flex;
+      justify-content: flex-end;
+      font-size: 11px;
+      opacity: .72;
+      margin-top: 3px;
+    }
+    .typing {
+      display: flex;
+      gap: 4px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      width: max-content;
+      animation: pop .2s ease-out;
+    }
+    .typing span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+      animation: bounce 1.2s infinite ease-in-out;
+      opacity: .7;
+    }
+    .typing span:nth-child(2) { animation-delay: .15s; }
+    .typing span:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce {
+      0%,60%,100% { transform: translateY(0); opacity: .55; }
+      30% { transform: translateY(-4px); opacity: 1; }
+    }
+    .input-bar {
+      flex-shrink: 0;
+      padding: 8px 10px 12px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+    .input-pill {
+      flex: 1;
+      border-radius: 22px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: flex-end;
+    }
+    .real-input {
+      width: 100%;
+      border: none;
+      outline: none;
+      resize: none;
+      font-size: 14.5px;
+      line-height: 1.35;
+      background: transparent;
+      max-height: 90px;
+      font-family: inherit;
+    }
+    .send-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      color: #fff;
+      font-size: 16px;
+      box-shadow: 0 2px 5px rgba(0,0,0,.25);
+    }
+    .home-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 4px;
+      background: rgba(0, 0, 0, 0.55);
+      border-radius: 3px;
+      z-index: 30;
+    }
+    .caption {
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.75);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .phone-wrap { order: -1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <section class="panel">
+      <h1>iPhone Text Demo Builder</h1>
+      <p class="sub">Build reusable demo conversations for Partner Success Agent and end users. Supports WhatsApp and iMessage, plus Video 1 and Video 2 presets.</p>
+
+      <div class="controls">
+        <div class="row">
+          <div>
+            <label for="app-select">Messaging app</label>
+            <select id="app-select">
+              <option value="whatsapp">WhatsApp</option>
+              <option value="imessage">iMessage</option>
+            </select>
+          </div>
+          <div>
+            <label for="preset-select">Use case preset</label>
+            <select id="preset-select">
+              <option value="video1">Video 1 · Verde</option>
+              <option value="video2">Video 2 · Malbec Motors</option>
+              <option value="blank">Blank</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="agent-name">Agent display name</label>
+            <input id="agent-name" type="text" value="Partner Success Agent" />
+          </div>
+          <div>
+            <label for="user-name">User display name</label>
+            <input id="user-name" type="text" value="End User" />
+          </div>
+        </div>
+
+        <div>
+          <label for="script-input">Script (JSON or line format)</label>
+          <textarea id="script-input"></textarea>
+          <div class="hint">Formats: JSON array `[{ "speaker":"user|agent", "text":"..." }]` or lines like `User: ...` / `Agent: ...`.</div>
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="apply-script">Apply Script</button>
+          <button id="play-script">Auto Play</button>
+          <button id="reset-chat">Reset</button>
+          <button id="copy-json">Copy JSON</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="phone-wrap">
+      <div class="caption" id="caption">Partner Success Agent Demo · WhatsApp</div>
+      <div class="phone">
+        <div class="cam-dot"></div>
+        <div class="screen">
+          <div class="status-bar" id="status-bar">
+            <span id="clock">9:41</span>
+            <div class="status-icons">
+              <svg width="17" height="12" viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="0.5" fill="currentColor"/><rect x="4.5" y="5" width="3" height="7" rx="0.5" fill="currentColor"/><rect x="9" y="3" width="3" height="9" rx="0.5" fill="currentColor"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" fill="currentColor"/></svg>
+              <svg width="15" height="12" viewBox="0 0 16 12"><path d="M8 2.5c2.3 0 4.4 0.9 6 2.4l-1.4 1.4C11.3 4.9 9.7 4.2 8 4.2s-3.3 0.7-4.6 2.1L2 4.9C3.6 3.4 5.7 2.5 8 2.5z" fill="currentColor"/><circle cx="8" cy="9.2" r="1.3" fill="currentColor"/></svg>
+              <svg width="23" height="12" viewBox="0 0 24 12"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="currentColor" fill="none"/><rect x="2" y="2" width="16" height="8" rx="1.2" fill="currentColor"/><rect x="21.2" y="4" width="1.6" height="4" rx="0.8" fill="currentColor"/></svg>
+            </div>
+          </div>
+          <div id="chat-header"></div>
+          <div class="chat" id="chat"></div>
+          <div class="input-bar" id="input-bar">
+            <div class="input-pill" id="input-pill">
+              <textarea id="real-input" class="real-input" rows="1" placeholder="Message"></textarea>
+            </div>
+            <button class="send-btn" id="send-btn">➤</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      const presets = {
+        video1: {
+          app: "whatsapp",
+          agentName: "Partner Success Agent",
+          userName: "End User",
+          turns: [
+            { speaker: "user", text: "Hi" },
+            { speaker: "agent", text: "Hi there! How can I assist you today?" },
+            { speaker: "user", text: "I'm ready to start selling. Can you send my verification code so I can authorize my account?" },
+            { speaker: "agent", text: "I sent a verification code to your email. Please enter the code here to begin selling!" },
+            { speaker: "user", text: "458219" },
+            { speaker: "agent", text: "Verification successful! Your account is now authenticated, and you are authorized to begin selling! I've updated your partner profile, and you can now access the partner portal." },
+            { speaker: "user", text: "Hi, our client Verde needs to modernize their facilities and reduce downtime. What do you recommend?" },
+            { speaker: "agent", text: "Given Verde's 2030 carbon-neutral goal and the CEO's mention in the Q3 call about a 12% rise in OpEx due to energy inefficiency, they're a perfect match for Smart Monitoring Cloud. This cloud service unifies energy monitoring with predictive AI to prevent the unplanned outages their board is currently prioritizing." },
+            { speaker: "user", text: "How much does the Smart Monitoring Cloud product cost?" },
+            { speaker: "agent", text: "It's $500 per device. It's the ultimate digital layer for their 2,000 AC assets. Shall we register the deal?" },
+            { speaker: "user", text: "Let's register this Verde opportunity with a close date for the end of this year. Also, what are the next steps for our Joint Business Plan?" },
+            { speaker: "agent", text: "Done! The deal is registered for 2,000 units, representing a $1M opportunity closing December 31, 2026. Regarding your Joint Business Plan, you are currently on track. I can guide you through the final alignment steps with your Partner Account Manager to ensure your strategic goals for this quarter are met." }
+          ]
+        },
+        video2: {
+          app: "whatsapp",
+          agentName: "Partner Success Agent",
+          userName: "Lucas",
+          turns: [
+            { speaker: "user", text: "Hi" },
+            { speaker: "agent", text: "Hey Lucas! Good to see you. What can I help with today?" },
+            { speaker: "user", text: "I'm heading out for a test drive. Can you get me access to the portal to check stock and log activity?" },
+            { speaker: "agent", text: "Of course! For security, I just sent a verification code to your dealership email. Drop it here and I'll get you set up." },
+            { speaker: "user", text: "481203" },
+            { speaker: "agent", text: "You're in! Session's active for the next 8 hours. Stock, incentives, opportunities, customer updates - all right here whenever you need. Good luck out there!" },
+            { speaker: "user", text: "Customer: Sofia Ramos. What do we know about her?" },
+            { speaker: "agent", text: "Sofia Ramos - she's been a lead since March 12, this is her third visit. Configured a Malbec X-7 Hybrid in blue online twice. Has a 2019 sedan for trade-in, 78,000 km. Pre-approved for financing up to $42,000. One heads-up from Diego's notes last visit: she's sensitive to the monthly payment, not the total price. Play the numbers accordingly." },
+            { speaker: "user", text: "She's asking how the hybrid handles towing 1,400 kg on mountain roads." },
+            { speaker: "agent", text: "Good question! The X-7 Hybrid is rated to tow up to 1,600 kg. On sustained climbs, the electric motor adds 90 Nm from a standstill, so it actually pulls better than the gas version below 40 km/h. Battery warranty: 8 years or 160,000 km. And vs. the competitor she mentioned last time: 1,600 vs 1,200 kg towing, and 12% better residual value at 36 months." },
+            { speaker: "user", text: "Generate the quote and send it to her WhatsApp." },
+            { speaker: "agent", text: "Quote #Q-7741 is queued and scheduled to reach Sofia's WhatsApp shortly. Two things you should know: the $2,500 hybrid bonus expires June 30, and you're at 17 of 22 units toward your quarterly target - this deal moves you into the next dealer tier." }
+          ]
+        },
+        blank: {
+          app: "imessage",
+          agentName: "Partner Success Agent",
+          userName: "End User",
+          turns: [
+            { speaker: "user", text: "Hi" },
+            { speaker: "agent", text: "Hello! Ready when you are." }
+          ]
+        }
+      };
+
+      const theme = {
+        whatsapp: {
+          chatBg: "#E9E0D3",
+          statusBg: "#128C7E",
+          statusColor: "#fff",
+          headerHtml: function (agentName) {
+            return '<div style="background:#128C7E;color:#fff;display:flex;align-items:center;gap:8px;padding:6px 12px 12px 6px;flex-shrink:0;">'
+              + '<div style="font-size:20px;padding:0 2px;">‹</div>'
+              + '<div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(160deg,#cfd8d6,#9fb0ac);"></div>'
+              + '<div style="flex:1;min-width:0;"><div style="font-size:16px;font-weight:600;">' + escapeHtml(agentName) + '</div><div style="font-size:12px;color:#cdeee7;">online</div></div>'
+              + '<div style="display:flex;gap:14px;font-size:15px;">📞 🎥 ⋮</div>'
+              + '</div>';
+          },
+          inBg: "#EFF6F3",
+          outBg: "#D6F3DA",
+          inText: "#1c2b28",
+          outText: "#1c2b28",
+          inputBg: "#E9E0D3",
+          pillBg: "#fff",
+          sendBg: "#128C7E",
+          placeholder: "Message"
+        },
+        imessage: {
+          chatBg: "#ffffff",
+          statusBg: "#ffffff",
+          statusColor: "#000",
+          headerHtml: function (agentName) {
+            return '<div style="background:rgba(255,255,255,0.92);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;padding:4px 12px 8px;border-bottom:1px solid #e3e3e6;position:relative;flex-shrink:0;">'
+              + '<div style="position:absolute;left:8px;top:8px;color:#0B84FF;font-size:16px;">‹ Messages</div>'
+              + '<div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(160deg,#c7cdd1,#9199a0);margin-top:2px;"></div>'
+              + '<div style="margin-top:3px;font-size:12.5px;font-weight:600;color:#1c1c1e;">' + escapeHtml(agentName) + '</div>'
+              + '</div>';
+          },
+          inBg: "#E9E9EB",
+          outBg: "linear-gradient(180deg, #1893FF, #0670E0)",
+          inText: "#1c1c1e",
+          outText: "#fff",
+          inputBg: "#fff",
+          pillBg: "#fff",
+          sendBg: "#0B84FF",
+          placeholder: "iMessage"
+        }
+      };
+
+      const appSelect = document.getElementById("app-select");
+      const presetSelect = document.getElementById("preset-select");
+      const agentNameInput = document.getElementById("agent-name");
+      const userNameInput = document.getElementById("user-name");
+      const scriptInput = document.getElementById("script-input");
+      const applyScriptBtn = document.getElementById("apply-script");
+      const playScriptBtn = document.getElementById("play-script");
+      const resetChatBtn = document.getElementById("reset-chat");
+      const copyJsonBtn = document.getElementById("copy-json");
+      const caption = document.getElementById("caption");
+      const statusBar = document.getElementById("status-bar");
+      const chatHeader = document.getElementById("chat-header");
+      const chat = document.getElementById("chat");
+      const inputBar = document.getElementById("input-bar");
+      const inputPill = document.getElementById("input-pill");
+      const input = document.getElementById("real-input");
+      const sendBtn = document.getElementById("send-btn");
+      const clock = document.getElementById("clock");
+
+      let turns = [];
+      let turnIndex = 0;
+      let autoplaying = false;
+
+      function updateClock() {
+        const now = new Date();
+        let h = now.getHours() % 12;
+        if (h === 0) h = 12;
+        const m = String(now.getMinutes()).padStart(2, "0");
+        clock.textContent = h + ":" + m;
+      }
+      updateClock();
+      setInterval(updateClock, 15000);
+
+      function stamp() {
+        const now = new Date();
+        let h = now.getHours() % 12;
+        if (h === 0) h = 12;
+        const m = String(now.getMinutes()).padStart(2, "0");
+        const ap = now.getHours() >= 12 ? "PM" : "AM";
+        return h + ":" + m + " " + ap;
+      }
+
+      function escapeHtml(str) {
+        return str
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function parseScript(raw) {
+        const cleaned = raw.trim();
+        if (!cleaned) return [];
+        if (cleaned.startsWith("[")) {
+          const parsed = JSON.parse(cleaned);
+          return parsed
+            .filter(function (t) { return t && t.speaker && t.text; })
+            .map(function (t) {
+              const role = String(t.speaker).toLowerCase().includes("agent") ? "agent" : "user";
+              return { speaker: role, text: String(t.text) };
+            });
+        }
+
+        return cleaned
+          .split(/\r?\n/)
+          .map(function (line) { return line.trim(); })
+          .filter(Boolean)
+          .map(function (line) {
+            const matched = line.match(/^(user|agent)\s*:\s*(.+)$/i);
+            if (!matched) return null;
+            return {
+              speaker: matched[1].toLowerCase(),
+              text: matched[2]
+            };
+          })
+          .filter(Boolean);
+      }
+
+      function scriptToEditor(items) {
+        return JSON.stringify(items, null, 2);
+      }
+
+      function loadPreset(key) {
+        const preset = presets[key];
+        if (!preset) return;
+        appSelect.value = preset.app;
+        agentNameInput.value = preset.agentName;
+        userNameInput.value = preset.userName;
+        scriptInput.value = scriptToEditor(preset.turns);
+        applyScript();
+      }
+
+      function applyTheme(app) {
+        const t = theme[app];
+        document.querySelector(".screen").style.background = t.chatBg;
+        statusBar.style.background = t.statusBg;
+        statusBar.style.color = t.statusColor;
+        chat.style.background = t.chatBg;
+        chatHeader.innerHTML = t.headerHtml(agentNameInput.value.trim() || "Partner Success Agent");
+        inputBar.style.background = t.inputBg;
+        inputPill.style.background = t.pillBg;
+        inputPill.style.border = app === "imessage" ? "1px solid #d6d6da" : "none";
+        sendBtn.style.background = t.sendBg;
+        input.placeholder = t.placeholder;
+        caption.textContent = (agentNameInput.value.trim() || "Partner Success Agent") + " Demo · " + (app === "whatsapp" ? "WhatsApp" : "iMessage");
+      }
+
+      function addDayChip() {
+        const chip = document.createElement("div");
+        chip.className = "day-chip";
+        chip.textContent = "Today · " + stamp();
+        chat.appendChild(chip);
+      }
+
+      function addTypingBubble(app) {
+        const row = document.createElement("div");
+        row.className = "row-msg in";
+        row.id = "typing-row";
+        const bubble = document.createElement("div");
+        bubble.className = "typing";
+        bubble.style.background = theme[app].inBg;
+        bubble.innerHTML = "<span></span><span></span><span></span>";
+        for (const dot of bubble.querySelectorAll("span")) {
+          dot.style.background = app === "imessage" ? "#a9a9ad" : "#a3b0ab";
+        }
+        row.appendChild(bubble);
+        chat.appendChild(row);
+        chat.scrollTop = chat.scrollHeight;
+      }
+
+      function removeTypingBubble() {
+        const el = document.getElementById("typing-row");
+        if (el) el.remove();
+      }
+
+      function renderMessage(item) {
+        const app = appSelect.value;
+        const role = item.speaker === "agent" ? "in" : "out";
+        const row = document.createElement("div");
+        row.className = "row-msg " + role;
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble " + role;
+        bubble.textContent = item.text;
+        bubble.style.background = role === "in" ? theme[app].inBg : theme[app].outBg;
+        bubble.style.color = role === "in" ? theme[app].inText : theme[app].outText;
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = role === "out" && app === "imessage" ? "Delivered" : stamp();
+        bubble.appendChild(meta);
+
+        row.appendChild(bubble);
+        chat.appendChild(row);
+        chat.scrollTop = chat.scrollHeight;
+      }
+
+      function clearChat() {
+        chat.innerHTML = "";
+        addDayChip();
+        turnIndex = 0;
+      }
+
+      function applyScript() {
+        try {
+          const parsed = parseScript(scriptInput.value);
+          if (!parsed.length) {
+            window.alert("No valid script items found. Use JSON or 'User:'/'Agent:' lines.");
+            return;
+          }
+          turns = parsed;
+          applyTheme(appSelect.value);
+          clearChat();
+          input.disabled = false;
+        } catch (err) {
+          window.alert("Script parse error: " + err.message);
+        }
+      }
+
+      async function playAutoplay() {
+        if (autoplaying) return;
+        autoplaying = true;
+        clearChat();
+        input.disabled = true;
+        for (let i = 0; i < turns.length; i++) {
+          const step = turns[i];
+          if (step.speaker === "agent") {
+            addTypingBubble(appSelect.value);
+            await wait(700);
+            removeTypingBubble();
+          }
+          renderMessage(step);
+          await wait(step.speaker === "agent" ? 520 : 360);
+        }
+        autoplaying = false;
+      }
+
+      function wait(ms) {
+        return new Promise(function (resolve) { setTimeout(resolve, ms); });
+      }
+
+      function playNextPair() {
+        if (autoplaying) return;
+        if (turnIndex >= turns.length) return;
+
+        const userTurn = turns[turnIndex];
+        if (userTurn.speaker !== "user") {
+          renderMessage(userTurn);
+          turnIndex++;
+          return;
+        }
+        renderMessage({ speaker: "user", text: input.value.trim() || userTurn.text });
+        input.value = "";
+        input.style.height = "auto";
+        turnIndex++;
+
+        if (turnIndex < turns.length && turns[turnIndex].speaker === "agent") {
+          addTypingBubble(appSelect.value);
+          const agentTurn = turns[turnIndex];
+          setTimeout(function () {
+            removeTypingBubble();
+            renderMessage(agentTurn);
+          }, 760);
+          turnIndex++;
+        }
+      }
+
+      function copyJson() {
+        navigator.clipboard.writeText(scriptToEditor(turns)).then(function () {
+          copyJsonBtn.textContent = "Copied!";
+          setTimeout(function () { copyJsonBtn.textContent = "Copy JSON"; }, 1200);
+        });
+      }
+
+      presetSelect.addEventListener("change", function () {
+        loadPreset(presetSelect.value);
+      });
+      appSelect.addEventListener("change", function () {
+        applyTheme(appSelect.value);
+      });
+      agentNameInput.addEventListener("input", function () {
+        applyTheme(appSelect.value);
+      });
+      applyScriptBtn.addEventListener("click", applyScript);
+      playScriptBtn.addEventListener("click", playAutoplay);
+      resetChatBtn.addEventListener("click", clearChat);
+      copyJsonBtn.addEventListener("click", copyJson);
+      sendBtn.addEventListener("click", playNextPair);
+      input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          playNextPair();
+        }
+      });
+      input.addEventListener("input", function () {
+        input.style.height = "auto";
+        input.style.height = Math.min(input.scrollHeight, 90) + "px";
+      });
+
+      loadPreset("video1");
+    })();
+  </script>
+</body>
+</html>
