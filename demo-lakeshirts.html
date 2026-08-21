@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Partner Success Agent — Lakeshirts / 1099 field seller</title>
+<style>
+  :root {
+    --imsg-blue: #0B84FF;
+    --imsg-blue-dark: #0670E0;
+    --imsg-grey: #E9E9EB;
+    --imsg-text-dark: #1c1c1e;
+    --imsg-meta: #8e8e93;
+    --stage-1: #0176D3;
+    --stage-2: #6cc3f2;
+    --stage-3: #032D60;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh;
+    background: radial-gradient(circle at 50% 0%, var(--stage-2), var(--stage-1) 50%, var(--stage-3) 100%);
+    overflow: hidden;
+  }
+
+  .phone {
+    position: relative;
+    width: 375px; height: 812px;
+    background: linear-gradient(155deg, #3a3d40, #1c1d1f 60%);
+    border-radius: 46px;
+    padding: 12px;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.06) inset,
+      0 40px 80px rgba(0,0,0,0.5),
+      0 15px 30px rgba(0,0,0,0.45);
+    flex-shrink: 0;
+  }
+  .phone::before {
+    content: ""; position: absolute; left: -3px; top: 130px;
+    width: 3px; height: 32px; background: #111; border-radius: 2px 0 0 2px;
+    box-shadow: 0 60px 0 #111, 0 96px 0 #111;
+  }
+  .phone::after {
+    content: ""; position: absolute; right: -3px; top: 180px;
+    width: 3px; height: 62px; background: #111; border-radius: 0 2px 2px 0;
+  }
+
+  .screen {
+    position: relative; width: 100%; height: 100%;
+    background: #fff;
+    border-radius: 36px; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+
+  .cam-dot {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    width: 8px; height: 8px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #3a5a6b, #0a0f12 70%);
+    z-index: 40;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.15);
+  }
+
+  .status-bar {
+    height: 40px; flex-shrink: 0; background: #fff;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 22px 0 22px; color: #000; font-size: 14px; font-weight: 600;
+    z-index: 20; position: relative;
+  }
+  .status-icons { display: flex; align-items: center; gap: 5px; }
+
+  .imsg-header {
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(6px);
+    display: flex; flex-direction: column; align-items: center;
+    padding: 4px 12px 8px 12px; flex-shrink: 0;
+    border-bottom: 1px solid #e3e3e6;
+    position: relative;
+  }
+  .imsg-back {
+    position: absolute; left: 8px; top: 8px;
+    display: flex; align-items: center; gap: 2px;
+    color: var(--imsg-blue); font-size: 16px; font-weight: 400;
+  }
+  .imsg-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(160deg, #c7cdd1, #9199a0);
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 2px;
+  }
+  .imsg-name-row { display: flex; align-items: center; gap: 3px; margin-top: 3px; }
+  .imsg-name { font-size: 12.5px; font-weight: 600; color: #1c1c1e; }
+  .imsg-chevron { color: #c2c2c6; }
+
+  .chat {
+    flex: 1; overflow-y: auto;
+    padding: 14px 12px 16px 12px;
+    display: flex; flex-direction: column; gap: 3px;
+    scrollbar-width: none;
+    background: #fff;
+  }
+  .chat::-webkit-scrollbar { display: none; }
+
+  .day-chip {
+    align-self: center; color: #9a9a9e;
+    font-size: 11px; padding: 2px 0 10px 0;
+    text-align: center; font-weight: 500;
+  }
+  .day-chip span { display: block; }
+  .day-chip .time { font-size: 10.5px; color: #b7b7bb; margin-top: 1px; }
+
+  .row { display: flex; width: 100%; }
+  .row.in { justify-content: flex-start; }
+  .row.out { justify-content: flex-end; }
+
+  .bubble {
+    position: relative;
+    max-width: 74%; padding: 8px 14px; border-radius: 18px;
+    font-size: 15.5px; line-height: 1.32;
+    white-space: pre-wrap;
+    animation: pop 0.2s ease-out;
+  }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+  .bubble.in {
+    background: var(--imsg-grey);
+    color: var(--imsg-text-dark);
+    border-bottom-left-radius: 5px;
+  }
+  .bubble.out {
+    background: linear-gradient(180deg, #1893FF, var(--imsg-blue-dark));
+    color: #fff;
+    border-bottom-right-radius: 5px;
+  }
+
+  .bubble.in::after {
+    content: ""; position: absolute; left: -6px; bottom: 0;
+    width: 14px; height: 16px;
+    background: var(--imsg-grey);
+    clip-path: polygon(100% 0, 100% 100%, 20% 100%);
+  }
+  .bubble.out::after {
+    content: ""; position: absolute; right: -6px; bottom: 0;
+    width: 14px; height: 16px;
+    background: var(--imsg-blue-dark);
+    clip-path: polygon(0 0, 80% 100%, 0 100%);
+  }
+
+  .meta {
+    font-size: 11px; color: var(--imsg-meta);
+    text-align: right;
+    margin: 2px 4px 6px 0;
+  }
+
+  .typing-row { display: flex; justify-content: flex-start; }
+  .typing-bubble {
+    position: relative;
+    background: var(--imsg-grey); border-radius: 18px; border-bottom-left-radius: 5px;
+    padding: 11px 16px;
+    display: flex; gap: 4px; animation: pop 0.2s ease-out;
+  }
+  .typing-bubble::after {
+    content: ""; position: absolute; left: -6px; bottom: 0;
+    width: 14px; height: 16px;
+    background: var(--imsg-grey);
+    clip-path: polygon(100% 0, 100% 100%, 20% 100%);
+  }
+  .typing-bubble span { width: 7px; height: 7px; background: #a9a9ad; border-radius: 50%; display: inline-block; animation: bounce 1.2s infinite ease-in-out; }
+  .typing-bubble span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-bubble span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+  .input-bar {
+    flex-shrink: 0; background: #fff;
+    padding: 8px 10px 12px 10px;
+    display: flex; align-items: center; gap: 8px;
+    border-top: 1px solid #e3e3e6;
+  }
+  .plus-btn {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 1.6px solid #c7c7cc;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .input-pill {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #d6d6da;
+    border-radius: 18px;
+    padding: 7px 12px;
+    display: flex; align-items: flex-end;
+  }
+  .real-input {
+    flex: 1;
+    border: none; outline: none; resize: none;
+    font-size: 15.5px; color: var(--imsg-text-dark);
+    max-height: 90px; font-family: inherit; line-height: 1.35;
+    padding: 2px 0;
+    background: transparent;
+  }
+  .real-input::placeholder { color: #b0b0b4; }
+  .real-input:disabled { color: #c5c5c9; }
+
+  .mic-btn {
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.15s ease;
+  }
+  .mic-btn.disabled { opacity: 0.35; }
+
+  .home-indicator {
+    position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+    width: 134px; height: 4px; background: rgba(0,0,0,0.55); border-radius: 3px; z-index: 30;
+  }
+
+  .replay-btn {
+    position: fixed; bottom: 22px; right: 22px;
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,0.15); color: #fff;
+    font-size: 18px; border-radius: 50%;
+    cursor: pointer; z-index: 999;
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .replay-btn:hover { background: rgba(255,255,255,0.28); transform: translateY(-1px); }
+
+  .caption {
+    position: absolute; top: -42px; left: 0; right: 0;
+    text-align: center; color: rgba(255,255,255,0.6);
+    font-size: 12.5px; letter-spacing: 0.4px; text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone" id="phone">
+  <div class="caption">Partner Success Agent · Malbec Motors</div>
+  <div class="cam-dot"></div>
+  <div class="screen" id="screen">
+
+    <div class="status-bar">
+      <span id="clock">9:41</span>
+      <div class="status-icons">
+        <svg width="17" height="12" viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="0.5" fill="#000"/><rect x="4.5" y="5" width="3" height="7" rx="0.5" fill="#000"/><rect x="9" y="3" width="3" height="9" rx="0.5" fill="#000"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" fill="#000"/></svg>
+        <svg width="15" height="12" viewBox="0 0 16 12"><path d="M8 2.5c2.3 0 4.4 0.9 6 2.4l-1.4 1.4C11.3 4.9 9.7 4.2 8 4.2s-3.3 0.7-4.6 2.1L2 4.9C3.6 3.4 5.7 2.5 8 2.5z" fill="#000"/><circle cx="8" cy="9.2" r="1.3" fill="#000"/></svg>
+        <svg width="23" height="12" viewBox="0 0 24 12"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="#000" fill="none"/><rect x="2" y="2" width="16" height="8" rx="1.2" fill="#000"/><rect x="21.2" y="4" width="1.6" height="4" rx="0.8" fill="#000"/></svg>
+      </div>
+    </div>
+
+    <div class="imsg-header">
+      <div class="imsg-back">
+        <svg width="11" height="18" viewBox="0 0 12 20" fill="none"><path d="M10 2L2 10l8 8" stroke="#0B84FF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span style="margin-left:2px;">12</span>
+      </div>
+      <div class="imsg-avatar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.6" fill="#7c8690"/><path d="M4.5 20c1.2-4 4-6 7.5-6s6.3 2 7.5 6" fill="#7c8690"/></svg>
+      </div>
+      <div class="imsg-name-row">
+        <span class="imsg-name">Malbec Motors Partner Agent</span>
+        <span class="imsg-chevron">
+          <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1.5 1.5l5 5-5 5" stroke="#c2c2c6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </div>
+    </div>
+
+    <div class="chat" id="chat"></div>
+
+    <div class="input-bar">
+      <div class="plus-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#8f8f94" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="input-pill">
+        <textarea id="real-input" class="real-input" rows="1" placeholder="iMessage"></textarea>
+      </div>
+      <div class="mic-btn" id="send-btn">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><rect x="9" y="2.5" width="6" height="11" rx="3" stroke="#8f8f94" stroke-width="1.6"/><path d="M6 11a6 6 0 0 0 12 0" stroke="#8f8f94" stroke-width="1.6" stroke-linecap="round"/><path d="M12 17v3.5" stroke="#8f8f94" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+</div>
+<div class="replay-btn" id="replay-btn">↻</div>
+
+<script>
+(function () {
+
+  const turns = [
+    { reply: "Hey Sarah! Good to see you. What can I help with today?" },
+    { reply: "Of course! For security, I just sent a verification code to your Lakeshirts rep email. Text it here and I'll get you set up." },
+    { reply: "You're in! Session's active for the next 8 hours. Deal reg, LEO orders, promos, commissions, and tier progress — all right here. Good luck at Deer Valley!" },
+    { reply: `Done! Lead registered: Deer Valley Resort — Retail / Ski Shop, opportunity #LR-30412, assigned to you.
+You're locked in for the next 60 days. If another rep tries to log activity against this account, it routes to you first. I'll ping you on day 45 if it hasn't moved.` },
+    { reply: `Two live promos worth leading with at Deer Valley this week:
+1) Custom Socks — 2x Spiff accelerator through Sept 30. Every pair you write ships with double the standard commission rate. Great fit for their retail floor and rental-shop giveaways.
+2) Co-branded Stickers — free case with any sock order over 500 pairs. Zero cost to Deer Valley, easy add-on, and it still counts toward your quota.
+Also — Deer Valley's buyer, Jenna Ricci, opened your last email 3 times yesterday. Warm walk-in.` },
+    { reply: `September to date: $5,500 in commission earned.
+• Deer Valley Resort — $3,200 (shirts + jackets, spring reorder)
+• Mountain Rock Resort — $2,300 (shirts, custom logo run)
+Payout date: Oct 15. Nothing in dispute, nothing pending approval.` },
+    { reply: `You're $10,000 in booked sales away from the Premier Seller tier — which qualifies you for the President's Club trip this year.
+Fastest path: one mid-size custom sock order (~500–600 pairs) closes the gap.
+
+The 2x Spiff accelerator is stackable, so it lands you in Premier AND doubles the commission on the order that gets you there.` },
+    { reply: `Drafting the LEO order now — 50 pairs, custom knit, Deer Valley logo, cream base with forest green. Estimated ship: 3 weeks.
+Commission preview: $900 on this order (base rate + 2x sock accelerator applied). Standard rate would have been $450 — the promo doubles it.
+Want me to submit it under opportunity #LR-30412 so it rolls up to your Deer Valley deal reg?` },
+    { reply: `Submitted! LEO order #LEO-77821, 50 pairs, linked to opportunity #LR-30412. Commission ($900) accrued to your September book, pending ship.
+
+One-pager on the way — co-branded Lakeshirts x Deer Valley, September custom-sock promo, with a mockup of the cream/forest green pair on her logo. Sending as a shareable link you can text or email straight to Jenna.
+
+Also good news: this order puts you at $95,200 booked YTD. $4,800 to Premier Seller. One more small reorder anywhere and you're in.` }
+  ];
+
+  const chat = document.getElementById('chat');
+  const input = document.getElementById('real-input');
+  const sendBtn = document.getElementById('send-btn');
+  const replayBtn = document.getElementById('replay-btn');
+  const clock = document.getElementById('clock');
+
+  let turnIndex = 0;
+  let busy = false;
+
+  function updateClock() {
+    const now = new Date();
+    let h = now.getHours() % 12; if (h === 0) h = 12;
+    const m = now.getMinutes().toString().padStart(2, '0');
+    clock.textContent = h + ':' + m;
+  }
+  updateClock();
+  setInterval(updateClock, 15000);
+
+  function timeStamp() {
+    const now = new Date();
+    let h = now.getHours() % 12; if (h === 0) h = 12;
+    const m = now.getMinutes().toString().padStart(2, '0');
+    const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+    return h + ':' + m + ' ' + ampm;
+  }
+
+  function scrollToBottom() { chat.scrollTop = chat.scrollHeight; }
+
+  function addDayChipIfFirst() {
+    if (chat.children.length === 0) {
+      const chip = document.createElement('div');
+      chip.className = 'day-chip';
+      chip.innerHTML = '<span>iMessage</span><span class="time">Today ' + timeStamp() + '</span>';
+      chat.appendChild(chip);
+    }
+  }
+
+  function renderMessage(sender, text) {
+    const row = document.createElement('div');
+    row.className = 'row ' + sender;
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble ' + sender;
+    bubble.textContent = text;
+    row.appendChild(bubble);
+    chat.appendChild(row);
+
+    if (sender === 'out') {
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = 'Delivered';
+      chat.appendChild(meta);
+    }
+    scrollToBottom();
+  }
+
+  function showTyping(callback) {
+    const row = document.createElement('div');
+    row.className = 'typing-row';
+    row.id = 'typing-indicator';
+    row.innerHTML = '<div class="typing-bubble"><span></span><span></span><span></span></div>';
+    chat.appendChild(row);
+    scrollToBottom();
+    setTimeout(() => {
+      const el = document.getElementById('typing-indicator');
+      if (el) el.remove();
+      callback();
+    }, 900);
+  }
+
+  function setEnded() {
+    input.placeholder = "End of demo — tap Restart";
+    input.disabled = true;
+    sendBtn.classList.add('disabled');
+  }
+
+  function sendMessage() {
+    if (busy) return;
+    if (turnIndex >= turns.length) return;
+    const text = input.value.trim();
+    if (!text) return;
+
+    busy = true;
+    addDayChipIfFirst();
+    renderMessage('out', text);
+    input.value = '';
+    input.style.height = 'auto';
+
+    const thisTurn = turnIndex;
+    showTyping(() => {
+      renderMessage('in', turns[thisTurn].reply);
+      turnIndex++;
+      busy = false;
+      if (turnIndex >= turns.length) {
+        setEnded();
+      }
+    });
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+  input.addEventListener('input', function () {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 90) + 'px';
+  });
+
+  function reset() {
+    turnIndex = 0;
+    busy = false;
+    chat.innerHTML = '';
+    input.disabled = false;
+    input.value = '';
+    input.placeholder = 'iMessage';
+    sendBtn.classList.remove('disabled');
+  }
+
+  replayBtn.addEventListener('click', reset);
+})();
+</script>
+</body>
+</html>
